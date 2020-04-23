@@ -875,9 +875,9 @@ def main(SPREADSHEET_ID):
     def cleanupLoop():
         print("################ cleanup loop ################")
         
-        now = time.time()
         
-        print (now.strftime(DATETIME_PRINT_FORMAT))
+        
+        print (datetime.now().strftime(DATETIME_PRINT_FORMAT))
         
         print("**************************************************")
         print(mySessionsObj)
@@ -926,6 +926,7 @@ def main(SPREADSHEET_ID):
         
         print ("checking restart status")
         
+        now = time.time()
         if now > startupTime + RESTART_INTERVAL:
             print ("This process has been up for long enogh. Time for a restart")
         else:
