@@ -41,18 +41,37 @@ if __name__ == '__main__':
 
     service = build('drive', 'v3', credentials=creds)
 
+    
+
     filename = logfile.split("/")[-1]
     filename = prefix + "_" + filename
+    
+    files = service.files().list(q="name='%s'" % filename).execute()["files"]
+    
+    if len(files) == 0:
+        
 
-    print ("uploading", filename)
+        print ("uploading", filename)
 
-    file_metadata = {'name': filename}
-    media = MediaFileUpload(logfile,
-                            mimetype='text/plain')
-    file = service.files().create(body=file_metadata,
-                                        media_body=media,
-                                        fields='id').execute()
-    print ('File ID: %s' % file.get('id'))
+        file_metadata = {'name': filename}
+        media = MediaFileUpload(logfile,
+                                mimetype='text/plain')
+        file = service.files().create(body=file_metadata,
+                                            media_body=media,
+                                            fields='id').execute()
+        print ('File ID: %s' % file.get('id'))
 
     
-    
+    else:
+        
+        file_id = files[0]["id"]
+        
+        print ("updating", filename, file_id)
+        
+        
+        media = MediaFileUpload(logfile,
+        mimetype='text/plain')
+        
+        file = service.files().update(
+        fileId=file_id,
+        media_body=media).execute()
