@@ -19,7 +19,9 @@ import io
 import pygame
 
 DATETIME_PRINT_FORMAT = "%m/%d/%Y %H:%M:%S"
-CLEANUP_LOOP_INTERVAL = 1*60
+CLEANUP_LOOP_INTERVAL = 5*60
+RESTART_INTERVAL = 12*60*60
+
 WORKING_DIR = "./"
 
 class spreadsheetSaver:
@@ -27,7 +29,7 @@ class spreadsheetSaver:
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
     SPREADSHEET_ID = None
     #RANGE_NAME = 'Sheet1!A1:E'
-    PICKLE_FILE_NAME  =  "abafilterSpreadsheetToken.pickel"
+    PICKLE_FILE_NAME  =  "abafilterSpreadsheetToken.pickle"
     
     creds = None
     service = None
@@ -857,13 +859,17 @@ class mySessions:
 
 
 def main(SPREADSHEET_ID):
-    
+ 
+    startupTime = time.time()
+ 
     myAddress =  set()
     
     myDNSObj = myDNS()
     mySessionsObj = mySessions()
     mySpreadsheetSaverObj = spreadsheetSaver(SPREADSHEET_ID)
     naggers = {}
+    
+    
     
     
     def cleanupLoop():
@@ -911,10 +917,17 @@ def main(SPREADSHEET_ID):
         except RuntimeError as err:
             print("WARNING: cleanupLoop spreadsheet RuntimeError ", err)
         
+        
         print("cleanup loop done")
         
-        t = threading.Timer(CLEANUP_LOOP_INTERVAL, cleanupLoop)
-        t.start()
+        print ("checking restart status")
+        now = time.time()
+        if now > startupTime + RESTART_INTERVAL:
+            print ("This process has been up for long enogh. Time for a restart")
+        else:
+        
+            t = threading.Timer(CLEANUP_LOOP_INTERVAL, cleanupLoop)
+            t.start()
         
     cleanupLoop()
     
@@ -925,6 +938,13 @@ def main(SPREADSHEET_ID):
     with os.popen('tcpdump -l -n', buffering=1) as pse:
         
         while pse:
+        
+            #print ("checking restart status")
+            now = time.time()
+            if now > startupTime + RESTART_INTERVAL:
+                print ("This process has been up for long enogh. Time for a restart")
+                break
+        
             line = pse.readline()
         
             if len(line):
@@ -1002,6 +1022,12 @@ if __name__ == '__main__':
     if len(sys.argv) > 2:
         SPREADSHEET_ID = sys.argv[2]
         
-    print ("Working dir: " + WORKING_DIR + " SPREADSHEET_ID " + SPREADSHEET_ID)
+    if len(sys.argv) > 3:
+        CLEANUP_LOOP_INTERVAL = int(sys.argv[3])
+        
+    if len(sys.argv) > 4:
+        RESTART_INTERVAL = int(sys.argv[4])
+        
+    print ("Working dir: %s, SPREADSHEET_ID: %s, CLEANUP_LOOP_INTERVAL: %i, RESTART_INTERVAL: %i" % (WORKING_DIR, SPREADSHEET_ID, CLEANUP_LOOP_INTERVAL, RESTART_INTERVAL))
 
     main(SPREADSHEET_ID)
