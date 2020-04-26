@@ -1026,8 +1026,6 @@ if __name__ == '__main__':
 
     print ("######## STARTING ABAFILTER ########")
 
-    sys.path.append("/usr/local/bin/")
-
     if len(sys.argv) > 1:
         WORKING_DIR = sys.argv[1]
     
