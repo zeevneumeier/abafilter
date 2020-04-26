@@ -17,6 +17,8 @@ import random
 from gtts import gTTS
 import io
 import pygame
+import hashlib
+import pydub
 
 DATETIME_PRINT_FORMAT = "%m/%d/%Y %H:%M:%S"
 CLEANUP_LOOP_INTERVAL = 5*60
@@ -343,16 +345,21 @@ class nagger:
         
         print("nagger.playNag(%s)" % message)
         
-        myobj = gTTS(text=message, lang='en', slow=False)
-        mp3_fp = io.BytesIO()
-        myobj.write_to_fp(mp3_fp)
-        mp3_fp.seek(0)
+        filename = "/tmp/abafilter_nag_%s.wav" % hashlib.md5(message.encode('utf-8')).hexdigest()
+        
+        if not os.path.exists(filename):
+            print (filename, "not found. Generating")
+        
+            myobj = gTTS(text=message, lang='en', slow=False)
+            myobj.save("/tmp/abafilter_nag_temp.mp3")
+            sound = pydub.AudioSegment.from_mp3("/tmp/abafilter_nag_temp.mp3")
+            sound.export(filename, format="wav")
         
         pygame.mixer.init(24000, -16, 1, 2048)
         clock = pygame.time.Clock()
 
         try:
-            pygame.mixer.music.load(mp3_fp)
+            pygame.mixer.music.load(filename)
         except pygame.error:
             print("nagger.playNag(%s) ERROR" % message, pygame.get_error())
             return
