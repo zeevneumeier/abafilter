@@ -1026,6 +1026,8 @@ if __name__ == '__main__':
 
     print ("######## STARTING ABAFILTER ########")
 
+    sys.path.append("/usr/local/bin/")
+
     if len(sys.argv) > 1:
         WORKING_DIR = sys.argv[1]
     
@@ -1040,6 +1042,6 @@ if __name__ == '__main__':
     if len(sys.argv) > 4:
         RESTART_INTERVAL = int(sys.argv[4])
         
-    print ("Working dir: %s, SPREADSHEET_ID: %s, CLEANUP_LOOP_INTERVAL: %i, RESTART_INTERVAL: %i" % (WORKING_DIR, SPREADSHEET_ID, CLEANUP_LOOP_INTERVAL, RESTART_INTERVAL))
+    print ("Working dir: %s, SPREADSHEET_ID: %s, CLEANUP_LOOP_INTERVAL: %i, RESTART_INTERVAL: %i, PATH: %s" % (WORKING_DIR, SPREADSHEET_ID, CLEANUP_LOOP_INTERVAL, RESTART_INTERVAL, os.environ['PATH']))
 
     main(SPREADSHEET_ID)
