@@ -1,6 +1,8 @@
 import sys
 import pickle
 import os.path
+from datetime import datetime
+import calendar
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -42,9 +44,10 @@ if __name__ == '__main__':
     service = build('drive', 'v3', credentials=creds)
 
     
+    now = datetime.now()
 
     filename = logfile.split("/")[-1]
-    filename = prefix + "_" + filename
+    filename = prefix + "_" + calendar.day_name[now.weekday()] + "_" + filename
     
     files = service.files().list(q="name='%s'" % filename).execute()["files"]
     
